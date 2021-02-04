@@ -45,6 +45,15 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--
+            - Maven Central URL : https://mvnrepository.com/artifact/org.springframework.security.oauth.boot/spring-security-oauth2-autoconfigure
+            - [용석:2020-09-16] : Oauth방식을 이용하여 권한/인가 처리를 위한 spring-security-oauth2-autoconfigure 추가
+        -->
+        <dependency>
+            <groupId>org.springframework.security.oauth.boot</groupId>
+            <artifactId>spring-security-oauth2-autoconfigure</artifactId>
+            <version>2.1.0.RELEASE</version>
+        </dependency>
     </dependencies>
 
     <build>
