@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @AutoConfigureMockMvc
 @DisplayName("Token API")
-class PasswordTypeAuthorizationConfigTest {
+class AuthorizationConfigTest {
 
     @Autowired
     private MockMvc mockMvc;
