@@ -1,21 +1,16 @@
 package io.example.authorization.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
-public class AuthorizationCodeTypeWebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class PasswordTypeWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     // Http 요청에 대한 보안 설정
     @Override
@@ -27,16 +22,7 @@ public class AuthorizationCodeTypeWebSecurityConfig extends WebSecurityConfigure
                     .antMatchers("/oauth/**", "/client/callback", "/h2-console/*").permitAll()
                     .anyRequest().authenticated()
                 .and()
-                .formLogin()
-                    .successHandler(new AuthenticationSuccessHandler() {
-                        @Override
-                        public void onAuthenticationSuccess(HttpServletRequest httpServletRequest
-                                , HttpServletResponse httpServletResponse
-                                , Authentication authentication) throws IOException, ServletException {
-                            httpServletResponse.sendRedirect("/oauth/authorize?client_id=testClientId&response_type=code&redirect_uri=http://localhost:8080/client/callback"); // 로그인 성공 이후 response 객체 접근 가능
-                        }
-                    })
-        ;
+                .httpBasic();
     }
 
     // InMemory환경에서 Token발급 대상인 사용자 정보 설정 추가
@@ -47,5 +33,11 @@ public class AuthorizationCodeTypeWebSecurityConfig extends WebSecurityConfigure
                 .password("{noop}password")
                 .roles("USER")
         ;
+    }
+
+    @Override
+    @Bean
+    protected AuthenticationManager authenticationManager() throws Exception {
+        return super.authenticationManager();
     }
 }

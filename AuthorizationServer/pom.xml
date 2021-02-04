@@ -54,6 +54,17 @@
             <artifactId>spring-security-oauth2-autoconfigure</artifactId>
             <version>2.1.0.RELEASE</version>
         </dependency>
+
+        <!--
+            - Maven Central URL : https://mvnrepository.com/artifact/org.springframework.security/spring-security-test
+            - [용석:2020-09-20] : Oauth방식을 이용한 Access Token 발급 Test를 위한 spring-security-test 추가
+        -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <version>${spring-security.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
