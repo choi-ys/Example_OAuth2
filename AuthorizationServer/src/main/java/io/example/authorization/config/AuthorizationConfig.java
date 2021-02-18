@@ -19,7 +19,7 @@ public class AuthorizationConfig extends AuthorizationServerConfigurerAdapter {
     // WebSecurityConfig.java의 AuthenticationManagerBuilder를 통해 AuthenticationManager에 등록된 인증된 사용자 정보
     private final AuthenticationManager authenticationManager;
 
-    // a정pplication.yml에 등록된 database 설정 및 접속 정보
+    // application.yml에 등록된 database 설정 및 접속 정보
     private final DataSource dataSource;
 
     // 인증 Token 발급/갱신에 필요한 Clinet정보를 코드로 설정
