@@ -1,7 +1,5 @@
 package io.example.authorization.domain.entity.partner;
 
-import javax.persistence.Table;
-
 /**
  * 제휴사 계정 권한
  */

@@ -11,7 +11,6 @@ import java.util.Set;
         name = "tb_partner"
         , uniqueConstraints = {
                 @UniqueConstraint(name = "PARTNER_ID_UNIQUE", columnNames = "partner_id")
-//                , @UniqueConstraint(name = "FOREIGN_KEY", columnNames = "partner_entity_partner_no")
             }
         )
 @Getter @EqualsAndHashCode(of = "id")

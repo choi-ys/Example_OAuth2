@@ -56,12 +56,6 @@ class PartnerRepositoryTest {
         assertThat(savedPartnerEntity.getPartnerRoles()).isEqualTo(partnerRoles);
         assertThat(savedPartnerEntity.getPartnerStatus()).isEqualTo(partnerStatus);
 
-//        try {
-//            PartnerEntity savedPartnerEntity2 = this.partnerRepository.save(partnerEntity);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-
     }
 
     @Test
