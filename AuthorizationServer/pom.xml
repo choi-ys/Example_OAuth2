@@ -70,6 +70,12 @@
             <version>${spring-security.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- About Authentication -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

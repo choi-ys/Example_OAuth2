@@ -4,6 +4,7 @@ import io.example.authorization.domain.entity.common.MetaEntity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Collections;
 import java.util.Set;
 
 @Entity
@@ -13,7 +14,7 @@ import java.util.Set;
                 @UniqueConstraint(name = "PARTNER_ID_UNIQUE", columnNames = "partner_id")
             }
         )
-@Getter @EqualsAndHashCode(of = "id")
+@Getter @Setter @EqualsAndHashCode(of = "id")
 @Builder @NoArgsConstructor @AllArgsConstructor
 public class PartnerEntity extends MetaEntity {
 
@@ -24,7 +25,7 @@ public class PartnerEntity extends MetaEntity {
     @Column(name = "partner_id", nullable = false, length = 50)
     private String partnerId; // 제휴사 ID : Unique key
 
-    @Column(name = "partner_password", nullable = false, length = 50)
+    @Column(name = "partner_password", nullable = false, length = 100)
     private String partnerPassword; // 제휴사 비밀번호
 
     @Column(name = "partner_email", nullable = false, length = 50)
@@ -53,4 +54,9 @@ public class PartnerEntity extends MetaEntity {
 
     @Enumerated(EnumType.STRING)
     private PartnerStatus partnerStatus; // 파트너 상태
+
+    public void signUp(){
+        this.partnerRoles = Collections.singleton(PartnerRole.FORBIDDEN);
+        this.partnerStatus = PartnerStatus.API_NOT_AVAILABLE;
+    }
 }
