@@ -1,7 +1,7 @@
 package io.example.authorization.service.common;
 
-import io.example.authorization.domain.response.common.Error;
-import io.example.authorization.domain.response.common.ProcessingResult;
+import io.example.authorization.domain.dto.response.common.Error;
+import io.example.authorization.domain.dto.response.common.ProcessingResult;
 
 public class CommonResult {
 

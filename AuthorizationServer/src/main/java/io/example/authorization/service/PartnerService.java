@@ -1,8 +1,8 @@
 package io.example.authorization.service;
 
 import io.example.authorization.domain.entity.partner.PartnerEntity;
-import io.example.authorization.domain.response.common.Error;
-import io.example.authorization.domain.response.common.ProcessingResult;
+import io.example.authorization.domain.dto.response.common.Error;
+import io.example.authorization.domain.dto.response.common.ProcessingResult;
 import io.example.authorization.repository.PartnerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
