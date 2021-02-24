@@ -19,7 +19,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf()
                     .disable() // 토큰 발급 시 요청 Method인 POST 요청 임시 허용 설정 추가
                 .authorizeRequests()
-                    .antMatchers("/oauth/**", "/client/callback", "/h2-console/*").permitAll()
+                    .antMatchers("/oauth/**", "/client/callback", "/h2-console/*", "/api/partner/**").permitAll()
                     .anyRequest().authenticated()
                 .and()
                 .httpBasic();

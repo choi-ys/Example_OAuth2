@@ -3,7 +3,7 @@ package io.example.authorization.service;
 import io.example.authorization.domain.entity.partner.PartnerEntity;
 import io.example.authorization.domain.entity.partner.PartnerRole;
 import io.example.authorization.domain.entity.partner.PartnerStatus;
-import io.example.authorization.domain.response.common.ProcessingResult;
+import io.example.authorization.domain.dto.response.common.ProcessingResult;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

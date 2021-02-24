@@ -1,4 +1,4 @@
-package io.example.authorization.domain.response.common;
+package io.example.authorization.domain.dto.response.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
