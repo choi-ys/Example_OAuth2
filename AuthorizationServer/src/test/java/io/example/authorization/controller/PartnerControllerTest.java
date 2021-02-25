@@ -2,11 +2,13 @@ package io.example.authorization.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.example.authorization.domain.dto.request.CreatePartner;
+import io.example.authorization.domain.entity.partner.PartnerStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -15,8 +17,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import static io.example.authorization.constants.MediaTypes.HAL_JSON_UTF8_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -55,7 +57,13 @@ class PartnerControllerTest {
 
         // Then
         resultActions.andDo(print())
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
+                .andExpect(header().exists(HttpHeaders.LOCATION))
+                .andExpect(header().stringValues(HttpHeaders.CONTENT_TYPE, HAL_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("success").value(true))
+                .andExpect(jsonPath("data.partnerId").value(createPartner.getPartnerId()))
+                .andExpect(jsonPath("data.partnerEmail").value(createPartner.getPartnerEmail()))
+                .andExpect(jsonPath("data.partnerStatus").value(PartnerStatus.API_NOT_AVAILABLE.name()))
         ;
     }
 
