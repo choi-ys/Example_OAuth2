@@ -1,31 +1,55 @@
 package io.example.authorization.controller;
 
+import io.example.authorization.controller.common.CommonResponseEntity;
 import io.example.authorization.domain.dto.request.CreatePartner;
+import io.example.authorization.domain.dto.response.common.ProcessingResult;
+import io.example.authorization.domain.dto.response.resource.ErrorsEntityModel;
+import io.example.authorization.domain.dto.response.resource.ProcessingResultEntityModel;
+import io.example.authorization.domain.entity.partner.PartnerEntity;
 import io.example.authorization.service.PartnerService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static io.example.authorization.constants.MediaTypes.HAL_JSON_UTF8_VALUE;
+import javax.validation.Valid;
 
+import static io.example.authorization.constants.MediaTypes.HAL_JSON_UTF8_VALUE;
+import static io.example.authorization.controller.common.CommonResponseEntity.*;
+
+/**
+ * @author : choi-ys
+ * @date : 2021-02-25 오후 11:58
+ * @Content : Partner 관련 요청 처리 Controller
+ */
 @RestController
 @RequestMapping(value = "/api/partner", produces = HAL_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
+@Slf4j
 public class PartnerController {
 
     private final PartnerService partnerService;
+    private final ModelMapper modelMapper;
 
     @PostMapping
-    public ResponseEntity createPartner(CreatePartner createPartner){
-        String msg = "요청이 성공적으로 처리 되었습니다.";
-        if(createPartner != null){
-            return ResponseEntity.ok(msg);
+    public ResponseEntity createPartner(@RequestBody @Valid CreatePartner createPartner, Errors errors){
+        if(errors.hasErrors()){
+            return badRequest(errors);
+        }
+
+        PartnerEntity partnerEntity = this.modelMapper.map(createPartner, PartnerEntity.class);
+        ProcessingResult processingResult = this.partnerService.savePartner(partnerEntity);
+
+        if(processingResult.isSuccess()){
+            return createResponse(processingResult);
         }else{
-            msg = "잘못된 요청입니다. 다시 시도해 주세요";
-            return ResponseEntity.badRequest().body(msg);
+            return errorResponse(processingResult);
         }
     }
 }
