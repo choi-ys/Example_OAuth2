@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import static io.example.authorization.constants.MediaTypes.HAL_JSON_UTF8_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -55,6 +56,64 @@ class PartnerControllerTest {
         // Then
         resultActions.andDo(print())
                 .andExpect(status().isOk())
+        ;
+    }
+
+    @Test
+    @DisplayName("파트너 계정 생성 API : 값이 없는 요청")
+    public void createPartnerAPI_EmptyParamRequest() throws Exception {
+        //given
+        CreatePartner createPartner = new CreatePartner();
+
+        //when
+        ResultActions resultActions = this.mockMvc.perform(post("/api/partner")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(HAL_JSON_UTF8_VALUE)
+                .content(this.objectMapper.writeValueAsString(createPartner))
+        );
+
+        //then
+        resultActions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors").exists())
+                .andExpect(jsonPath("errors[0].objectName").value("createPartner"))
+                .andExpect(jsonPath("errors[0].field").exists())
+                .andExpect(jsonPath("errors[0].defaultMessage").exists())
+                .andExpect(jsonPath("errors[0].rejectedValue").doesNotExist())
+        ;
+    }
+
+    @Test
+    @DisplayName("파트너 계정 생성 API : 유효하지 못한 값의 요청")
+    public void createPartnerAPI_WrongParamRequest() throws Exception {
+        //given
+        String partnerId = "a";
+        String partnerPassword = "b";
+        String partnerEmail = "c";
+        String partnerCompanyName = "d";
+
+        CreatePartner createPartner = new CreatePartner();
+        createPartner.setPartnerId(partnerId);
+        createPartner.setPartnerPassword(partnerPassword);
+        createPartner.setPartnerEmail(partnerEmail);
+        createPartner.setPartnerCompanyName(partnerCompanyName);
+
+        //when
+        String urlTemplate = "/api/partner";
+        ResultActions resultActions = this.mockMvc.perform(post(urlTemplate)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(HAL_JSON_UTF8_VALUE)
+                .content(this.objectMapper.writeValueAsString(createPartner))
+        );
+
+        //then
+        resultActions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors").exists())
+                .andExpect(jsonPath("errors[0].objectName").value("createPartner"))
+                .andExpect(jsonPath("errors[0].field").exists())
+                .andExpect(jsonPath("errors[0].defaultMessage").exists())
+                .andExpect(jsonPath("errors[0].rejectedValue").exists())
         ;
     }
 }
