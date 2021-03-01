@@ -1,5 +1,7 @@
 package io.example.authorization.config;
 
+import io.example.authorization.service.PartnerService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -7,9 +9,11 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     // Http 요청에 대한 보안 설정
@@ -25,13 +29,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .httpBasic();
     }
 
-    // InMemory환경에서 Token발급 대상인 사용자 정보 설정 추가
+    private final PartnerService partnerService;
+    private final PasswordEncoder passwordEncoder;
+
+    // DB의 사용자 정보를 이용한 인증 정보 설정
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
-                .withUser("user")
-                .password("{noop}password")
-                .roles("USER")
+        auth.userDetailsService(partnerService)
+                .passwordEncoder(passwordEncoder)
         ;
     }
 
