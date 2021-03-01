@@ -6,6 +6,7 @@ import io.example.authorization.repository.PartnerRepository;
 import org.junit.jupiter.api.Disabled;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * @author : choi-ys
@@ -17,6 +18,9 @@ public class PartnerGenerator {
 
     @Autowired
     ModelMapper modelMapper;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @Autowired
     PartnerRepository partnerRepository;
@@ -39,6 +43,7 @@ public class PartnerGenerator {
     public PartnerEntity buildSignUpPartnerEntity(){
         CreatePartner createPartner = this.createPartner();
         PartnerEntity partnerEntity = this.modelMapper.map(createPartner, PartnerEntity.class);
+        partnerEntity.setPartnerPassword(this.passwordEncoder.encode(partnerEntity.getPartnerPassword()));
         partnerEntity.signUp();
         return partnerEntity;
     }
