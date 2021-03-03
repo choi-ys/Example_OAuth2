@@ -8,7 +8,7 @@
    - Test : H2 InMemory
    - Local : PostgreSQL
  - Test Framework : jUnit5
- - Dependency
+ - Dependency : https://github.com/choi-ys/Example_OAuth2/network/dependencies
 
 
 Step1. Authoriztion Server 구현
