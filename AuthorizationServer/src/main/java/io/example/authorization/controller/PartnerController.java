@@ -40,8 +40,7 @@ public class PartnerController {
             return badRequest(errors);
         }
 
-        PartnerEntity partnerEntity = this.modelMapper.map(createPartner, PartnerEntity.class);
-        ProcessingResult processingResult = this.partnerService.savePartner(partnerEntity);
+        ProcessingResult processingResult = this.partnerService.savePartner(createPartner);
 
         if(processingResult.isSuccess()){
             return createResponse(processingResult);

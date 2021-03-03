@@ -1,11 +1,13 @@
 package io.example.authorization.service;
 
+import io.example.authorization.domain.dto.request.partner.CreatePartner;
 import io.example.authorization.domain.entity.partner.PartnerEntity;
 import io.example.authorization.domain.dto.response.common.Error;
 import io.example.authorization.domain.dto.response.common.ProcessingResult;
 import io.example.authorization.domain.entity.partner.PartnerRole;
 import io.example.authorization.repository.PartnerRepository;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -13,6 +15,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.provider.ClientDetails;
+import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.ClientRegistrationException;
+import org.springframework.security.oauth2.provider.client.BaseClientDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -32,6 +38,7 @@ public class PartnerService implements UserDetailsService {
 
     private final PartnerRepository partnerRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ModelMapper modelMapper;
 
     /**
      * 인증 토큰 발급 대상자인 사용자 계정 생성 로직
@@ -40,11 +47,11 @@ public class PartnerService implements UserDetailsService {
      *  - 입력값에 의해 결정되는 값 설정 : 사용자의 초기 권한 및 상태
      *  - DB 저장 및 처리 결과 반환 처리
      *  - 로직 처리 중 발생하는 예외 반환 처리
-     * @param partnerEntity
+     * @param createPartner
      * @return
      */
-    public ProcessingResult savePartner(PartnerEntity partnerEntity){
-        if(this.isDuplicatedId(partnerEntity.getPartnerId())){
+    public ProcessingResult savePartner(CreatePartner createPartner){
+        if(this.isDuplicatedId(createPartner.getPartnerId())){
             return new ProcessingResult(Error.builder()
                     .code(-1)
                     .message("이미 존재하는 ID 입니다.")
@@ -52,6 +59,7 @@ public class PartnerService implements UserDetailsService {
             );
         }
 
+        PartnerEntity partnerEntity = this.modelMapper.map(createPartner, PartnerEntity.class);
         partnerEntity.setPartnerPassword(this.passwordEncoder.encode(partnerEntity.getPartnerPassword()));
         partnerEntity.signUp();
 

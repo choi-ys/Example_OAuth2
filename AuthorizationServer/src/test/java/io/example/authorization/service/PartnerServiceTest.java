@@ -1,9 +1,10 @@
 package io.example.authorization.service;
 
+import io.example.authorization.domain.dto.request.partner.CreatePartner;
+import io.example.authorization.domain.dto.response.common.ProcessingResult;
 import io.example.authorization.domain.entity.partner.PartnerEntity;
 import io.example.authorization.domain.entity.partner.PartnerRole;
 import io.example.authorization.domain.entity.partner.PartnerStatus;
-import io.example.authorization.domain.dto.response.common.ProcessingResult;
 import io.example.authorization.generator.PartnerGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,29 +42,19 @@ class PartnerServiceTest {
     @DisplayName("신규 사용자 생성")
     void savePartner() {
         // given
-        String partnerId = "user";
-        String partnerPassword = "password";
-        String partnerEmail = "project.log.065@gmail.com";
-        String partnerCompanyName = "naver";
-
-        PartnerEntity partnerEntity = PartnerEntity.builder()
-                .partnerId(partnerId)
-                .partnerPassword(partnerPassword)
-                .partnerEmail(partnerEmail)
-                .partnerCompanyName(partnerCompanyName)
-                .build();
+        CreatePartner createPartner = this.partnerGenerator.createPartner();
 
         // when
-        ProcessingResult processingResult = this.partnerService.savePartner(partnerEntity);
+        ProcessingResult processingResult = this.partnerService.savePartner(createPartner);
         PartnerEntity savedPartnerEntity = (PartnerEntity) processingResult.getData();
 
         // then
         assertThat(processingResult.isSuccess()).isTrue();
         assertThat(processingResult.getError()).isNull();
-        assertThat(savedPartnerEntity.getPartnerId()).isEqualTo(partnerId);
-        assertThat(passwordEncoder.matches(partnerPassword, savedPartnerEntity.getPartnerPassword())).isTrue();
-        assertThat(savedPartnerEntity.getPartnerEmail()).isEqualTo(partnerEmail);
-        assertThat(savedPartnerEntity.getPartnerCompanyName()).isEqualTo(partnerCompanyName);
+        assertThat(savedPartnerEntity.getPartnerId()).isEqualTo(createPartner.getPartnerId());
+        assertThat(passwordEncoder.matches(createPartner.getPartnerPassword(), savedPartnerEntity.getPartnerPassword())).isTrue();
+        assertThat(savedPartnerEntity.getPartnerEmail()).isEqualTo(createPartner.getPartnerEmail());
+        assertThat(savedPartnerEntity.getPartnerCompanyName()).isEqualTo(createPartner.getPartnerCompanyName());
 
         assertThat(savedPartnerEntity.getPartnerRoles()).isEqualTo(Collections.singleton(PartnerRole.FORBIDDEN));
         assertThat(savedPartnerEntity.getPartnerStatus()).isEqualTo(PartnerStatus.API_NOT_AVAILABLE);
