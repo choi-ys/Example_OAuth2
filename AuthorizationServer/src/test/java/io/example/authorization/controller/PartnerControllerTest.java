@@ -2,7 +2,7 @@ package io.example.authorization.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.example.authorization.common.BaseTest;
-import io.example.authorization.domain.dto.request.CreatePartner;
+import io.example.authorization.domain.dto.request.partner.CreatePartner;
 import io.example.authorization.domain.entity.partner.PartnerStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

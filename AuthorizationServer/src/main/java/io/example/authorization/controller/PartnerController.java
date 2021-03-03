@@ -1,10 +1,7 @@
 package io.example.authorization.controller;
 
-import io.example.authorization.controller.common.CommonResponseEntity;
-import io.example.authorization.domain.dto.request.CreatePartner;
+import io.example.authorization.domain.dto.request.partner.CreatePartner;
 import io.example.authorization.domain.dto.response.common.ProcessingResult;
-import io.example.authorization.domain.dto.response.resource.ErrorsEntityModel;
-import io.example.authorization.domain.dto.response.resource.ProcessingResultEntityModel;
 import io.example.authorization.domain.entity.partner.PartnerEntity;
 import io.example.authorization.service.PartnerService;
 import lombok.RequiredArgsConstructor;

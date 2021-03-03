@@ -1,7 +1,6 @@
-package io.example.authorization.domain.partner.entity;
+package io.example.authorization.domain.entity.partner;
 
-import io.example.authorization.domain.dto.request.CreatePartner;
-import io.example.authorization.domain.entity.partner.PartnerEntity;
+import io.example.authorization.domain.dto.request.partner.CreatePartner;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;

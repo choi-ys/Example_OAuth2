@@ -1,4 +1,4 @@
-package io.example.authorization.domain.dto.request;
+package io.example.authorization.domain.dto.request.partner;
 
 import lombok.*;
 
