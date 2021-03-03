@@ -1,7 +1,5 @@
 # Example_OAuth2 : Oauth2에 관련된 Authorization, Resource, Client Server 구현 에제
 
----
-
 ## 개발환경
  - Language : Java 11
  - Framework : SpringBoot 2.4.1
