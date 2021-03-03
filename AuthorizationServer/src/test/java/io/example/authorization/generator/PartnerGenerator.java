@@ -1,6 +1,6 @@
 package io.example.authorization.generator;
 
-import io.example.authorization.domain.dto.request.CreatePartner;
+import io.example.authorization.domain.dto.request.partner.CreatePartner;
 import io.example.authorization.domain.entity.partner.PartnerEntity;
 import io.example.authorization.repository.PartnerRepository;
 import org.junit.jupiter.api.Disabled;

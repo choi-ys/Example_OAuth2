@@ -14,7 +14,7 @@ import java.util.Set;
                 @UniqueConstraint(name = "PARTNER_ID_UNIQUE", columnNames = "partner_id")
             }
         )
-@Getter @Setter @EqualsAndHashCode(of = "id")
+@Getter @Setter
 @Builder @NoArgsConstructor @AllArgsConstructor
 public class PartnerEntity extends MetaEntity {
 
@@ -34,18 +34,12 @@ public class PartnerEntity extends MetaEntity {
     @Column(name = "partner_company_name",nullable = false, length = 50)
     private String partnerCompanyName; // 제휴사 명
 
-    @Column(name = "client_id", nullable = true, length = 100)
-    private String clientId; // Token 발급을 위한 Client ID
-
-    @Column(name = "client_secret", nullable = true, length = 100)
-    private String clientSecret; // Token 발급을 위한 Client Secret
-
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "tb_partner_role"
             , joinColumns = @JoinColumn(
                     name = "partner_no"
-                    , foreignKey = @ForeignKey(name = "PARTNER_NO_FOREIGN_KEY")
+                    , foreignKey = @ForeignKey(name = "TB_PARTNER_ROLE_PARTNER_NO_FOREIGN_KEY")
             )
     )
     @Enumerated(EnumType.STRING)
@@ -55,8 +49,16 @@ public class PartnerEntity extends MetaEntity {
     @Enumerated(EnumType.STRING)
     private PartnerStatus partnerStatus; // 파트너 상태
 
+    @OneToOne(mappedBy = "partnerEntity")
+    private ClientEntity clientEntity;
+
     public void signUp(){
         this.partnerRoles = Collections.singleton(PartnerRole.FORBIDDEN);
         this.partnerStatus = PartnerStatus.API_NOT_AVAILABLE;
+    }
+
+    public void publishedClientInfo(){
+        this.partnerRoles = Collections.singleton(PartnerRole.STARTER);
+        this.partnerStatus = PartnerStatus.DRAFT;
     }
 }

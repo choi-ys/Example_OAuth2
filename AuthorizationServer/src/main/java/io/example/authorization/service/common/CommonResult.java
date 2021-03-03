@@ -23,7 +23,7 @@ public class CommonResult {
      * notFound 결과 반환
      * @return
      */
-    private ProcessingResult notFound(){
+    public static ProcessingResult notFound(){
         return new ProcessingResult(Error.builder()
                 .code(404)
                 .message("요청에 해당하는 데이터가 존재하지 않습니다.")
