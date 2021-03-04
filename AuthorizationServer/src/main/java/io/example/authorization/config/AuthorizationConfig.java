@@ -1,5 +1,6 @@
 package io.example.authorization.config;
 
+import io.example.authorization.service.PartnerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,15 +23,12 @@ public class AuthorizationConfig extends AuthorizationServerConfigurerAdapter {
     // application.yml에 등록된 database 설정 및 접속 정보
     private final DataSource dataSource;
 
+    private final PartnerService partnerService;
+
     // 인증 Token 발급/갱신에 필요한 Clinet정보를 코드로 설정
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-        clients.inMemory()
-                .withClient("testClientId")
-                .secret("{noop}testClientSecret")
-                .authorizedGrantTypes("password", "refresh_token")
-                .scopes("read")
-        ;
+        clients.withClientDetails(partnerService);
     }
 
     /**

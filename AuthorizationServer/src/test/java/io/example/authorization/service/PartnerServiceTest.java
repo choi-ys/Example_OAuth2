@@ -1,9 +1,11 @@
 package io.example.authorization.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.example.authorization.common.BaseTest;
 import io.example.authorization.domain.dto.request.partner.CreatePartner;
 import io.example.authorization.domain.dto.request.partner.IssueClient;
 import io.example.authorization.domain.dto.response.common.ProcessingResult;
+import io.example.authorization.domain.entity.partner.ClientEntity;
 import io.example.authorization.domain.entity.partner.PartnerEntity;
 import io.example.authorization.domain.entity.partner.PartnerRole;
 import io.example.authorization.domain.entity.partner.PartnerStatus;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.provider.ClientDetails;
 
 import javax.annotation.Resource;
 import java.util.Collections;
@@ -92,5 +95,32 @@ class PartnerServiceTest extends BaseTest {
 
         // Then
         assertThat(createClientPartnerProcessingResult.isSuccess()).isTrue();
+    }
+
+    @Test
+    @DisplayName("ClientDetailService의 loadClientByClientId 이용한 Client 정보 조회")
+    public void loadClientByClientId() throws JsonProcessingException {
+        // Given : 클라이언트 정보를 발급할 사용자 정보 생성
+        CreatePartner createPartner = this.partnerGenerator.createPartner();
+        ProcessingResult createPartnerProcessingResult = this.partnerService.savePartner(createPartner);
+        assertThat(createPartnerProcessingResult.isSuccess()).isTrue();
+
+        // Given : 생성된 사용자 정보에 클라이언트 정보 발급 요청
+        PartnerEntity savedPartnerEntity = (PartnerEntity) createPartnerProcessingResult.getData();
+        String resourceIds = "NAVER";
+
+        IssueClient issueClient = new IssueClient();
+        issueClient.setPartnerNo(savedPartnerEntity.getPartnerNo());
+        issueClient.setResourceIds(resourceIds);
+
+        ProcessingResult createClientPartnerProcessingResult = partnerService.saveClient(issueClient);
+        assertThat(createClientPartnerProcessingResult.isSuccess()).isTrue();
+
+        // Then : Spring Security의 loadClientByClientId를 이용한 ClientDetails 타입의 클라이언트 정보 조회
+        ClientEntity savedClientEntity = (ClientEntity) createClientPartnerProcessingResult.getData();
+        ClientDetails clientDetails = partnerService.loadClientByClientId(savedClientEntity.getClientId());
+
+        assertThat(clientDetails.getClientId()).isEqualTo(savedClientEntity.getClientId());
+        assertThat(clientDetails.getClientSecret()).isEqualTo(savedClientEntity.getClientSecret());
     }
 }
