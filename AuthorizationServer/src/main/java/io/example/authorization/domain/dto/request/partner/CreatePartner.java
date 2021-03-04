@@ -6,6 +6,11 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+/**
+ * @date : 2021/03/04 6:32 오후
+ * @author : choi-ys
+ * @Content : 사용자 생성 요청 정보
+**/
 @Getter @Setter
 public class CreatePartner {
 

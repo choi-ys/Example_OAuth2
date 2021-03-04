@@ -16,7 +16,7 @@ import java.util.*;
                 @UniqueConstraint(name = "CLIENT_ID_UNIQUE", columnNames = "client_id")
             }
         )
-@Getter @Setter @EqualsAndHashCode(of = "clientId")
+@Getter @Setter
 @Builder @NoArgsConstructor @AllArgsConstructor
 public class ClientEntity extends MetaEntity {
 
@@ -63,8 +63,8 @@ public class ClientEntity extends MetaEntity {
     private PartnerEntity partnerEntity;
 
     /**
-     * 특정 회원에 클라이언트 정보 발급
-     * @param partnerEntity
+     * 특정 사용자에 클라이언트 정보 발급
+     * @param partnerEntity 클라이언트 발급 대상 사용자 객체
      */
     public void setPublishedClientInfo(PartnerEntity partnerEntity){
         this.clientId = UUID.randomUUID().toString();
@@ -79,7 +79,6 @@ public class ClientEntity extends MetaEntity {
         this.refreshTokenValidity = 86400; // 24시간
 
         partnerEntity.publishedClientInfo();
-        partnerEntity.setClientEntity(this);
         this.partnerEntity = partnerEntity;
     }
 }

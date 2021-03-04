@@ -2,6 +2,7 @@ package io.example.authorization.service;
 
 import io.example.authorization.common.BaseTest;
 import io.example.authorization.domain.dto.request.partner.CreatePartner;
+import io.example.authorization.domain.dto.request.partner.IssueClient;
 import io.example.authorization.domain.dto.response.common.ProcessingResult;
 import io.example.authorization.domain.entity.partner.PartnerEntity;
 import io.example.authorization.domain.entity.partner.PartnerRole;
@@ -67,5 +68,29 @@ class PartnerServiceTest extends BaseTest {
         // Then
         assertThat(userDetails.getUsername()).isEqualTo(savedPartnerId);
         assertThat(userDetails.getPassword()).isEqualTo(savedPartnerEntity.getPartnerPassword());
+    }
+
+
+    @Test
+    @DisplayName("DB에 존재하는 사용자 정보에 Client 정보 생성")
+    public void setClientInfoToPartner() {
+        // Given
+        CreatePartner createPartner = this.partnerGenerator.createPartner();
+        ProcessingResult createPartnerProcessingResult = this.partnerService.savePartner(createPartner);
+        assertThat(createPartnerProcessingResult.isSuccess()).isTrue();
+
+        // Given
+        PartnerEntity savedPartnerEntity = (PartnerEntity) createPartnerProcessingResult.getData();
+        String resourceIds = "NAVER";
+
+        IssueClient issueClient = new IssueClient();
+        issueClient.setPartnerNo(savedPartnerEntity.getPartnerNo());
+        issueClient.setResourceIds(resourceIds);
+
+        // When
+        ProcessingResult createClientPartnerProcessingResult = partnerService.saveClient(issueClient);
+
+        // Then
+        assertThat(createClientPartnerProcessingResult.isSuccess()).isTrue();
     }
 }
