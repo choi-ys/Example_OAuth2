@@ -49,7 +49,7 @@ public class PartnerEntity extends MetaEntity {
     @Enumerated(EnumType.STRING)
     private PartnerStatus partnerStatus; // 파트너 상태
 
-    @OneToOne(mappedBy = "partnerEntity")
+    @OneToOne(mappedBy = "partnerEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private ClientEntity clientEntity;
 
     public void signUp(){

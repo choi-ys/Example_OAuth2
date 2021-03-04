@@ -4,6 +4,7 @@ import io.example.authorization.common.BaseTest;
 import io.example.authorization.domain.dto.request.partner.CreatePartner;
 import io.example.authorization.domain.entity.partner.PartnerEntity;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -34,7 +35,8 @@ class AuthorizationConfigTest extends BaseTest{
     private MockMvc mockMvc;
 
     @Test
-    @DisplayName("인증 토큰 발급 : Password Type의 인증 토큰 발급")
+    @DisplayName("인증 토큰 발급 : InMemory환경의 Password Type의 인증 토큰 발급")
+    @Disabled
     public void issuedAccessTokenToInMemoryUser() throws Exception {
         //given
         String urlTemplate = "/oauth/token";

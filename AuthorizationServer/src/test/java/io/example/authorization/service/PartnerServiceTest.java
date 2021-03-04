@@ -1,6 +1,8 @@
 package io.example.authorization.service;
 
+import io.example.authorization.common.BaseTest;
 import io.example.authorization.domain.dto.request.partner.CreatePartner;
+import io.example.authorization.domain.dto.request.partner.IssueClient;
 import io.example.authorization.domain.dto.response.common.ProcessingResult;
 import io.example.authorization.domain.entity.partner.PartnerEntity;
 import io.example.authorization.domain.entity.partner.PartnerRole;
@@ -9,28 +11,21 @@ import io.example.authorization.generator.PartnerGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
 
 import javax.annotation.Resource;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 /**
  * @author : choi-ys
  * @date : 2021/02/19 12:20 오후
  * @Content : 사용자 계정 관련 TC
  */
-@SpringBootTest(webEnvironment = RANDOM_PORT)
 @DisplayName("Partner Service Test")
-@ActiveProfiles("test")
-@Import(PartnerGenerator.class)
-class PartnerServiceTest {
+class PartnerServiceTest extends BaseTest {
 
     @Resource
     protected  PartnerGenerator partnerGenerator;
@@ -73,5 +68,29 @@ class PartnerServiceTest {
         // Then
         assertThat(userDetails.getUsername()).isEqualTo(savedPartnerId);
         assertThat(userDetails.getPassword()).isEqualTo(savedPartnerEntity.getPartnerPassword());
+    }
+
+
+    @Test
+    @DisplayName("DB에 존재하는 사용자 정보에 Client 정보 생성")
+    public void setClientInfoToPartner() {
+        // Given
+        CreatePartner createPartner = this.partnerGenerator.createPartner();
+        ProcessingResult createPartnerProcessingResult = this.partnerService.savePartner(createPartner);
+        assertThat(createPartnerProcessingResult.isSuccess()).isTrue();
+
+        // Given
+        PartnerEntity savedPartnerEntity = (PartnerEntity) createPartnerProcessingResult.getData();
+        String resourceIds = "NAVER";
+
+        IssueClient issueClient = new IssueClient();
+        issueClient.setPartnerNo(savedPartnerEntity.getPartnerNo());
+        issueClient.setResourceIds(resourceIds);
+
+        // When
+        ProcessingResult createClientPartnerProcessingResult = partnerService.saveClient(issueClient);
+
+        // Then
+        assertThat(createClientPartnerProcessingResult.isSuccess()).isTrue();
     }
 }

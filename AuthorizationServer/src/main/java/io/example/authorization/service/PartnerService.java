@@ -1,11 +1,15 @@
 package io.example.authorization.service;
 
 import io.example.authorization.domain.dto.request.partner.CreatePartner;
-import io.example.authorization.domain.entity.partner.PartnerEntity;
+import io.example.authorization.domain.dto.request.partner.IssueClient;
 import io.example.authorization.domain.dto.response.common.Error;
 import io.example.authorization.domain.dto.response.common.ProcessingResult;
+import io.example.authorization.domain.entity.partner.ClientEntity;
+import io.example.authorization.domain.entity.partner.PartnerEntity;
 import io.example.authorization.domain.entity.partner.PartnerRole;
+import io.example.authorization.repository.ClientRepository;
 import io.example.authorization.repository.PartnerRepository;
+import io.example.authorization.service.common.CommonResult;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,13 +19,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.provider.ClientDetails;
-import org.springframework.security.oauth2.provider.ClientDetailsService;
-import org.springframework.security.oauth2.provider.ClientRegistrationException;
-import org.springframework.security.oauth2.provider.client.BaseClientDetails;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,6 +39,7 @@ import static io.example.authorization.service.common.CommonResult.serverError;
 public class PartnerService implements UserDetailsService {
 
     private final PartnerRepository partnerRepository;
+    private final ClientRepository clientRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
@@ -47,8 +50,8 @@ public class PartnerService implements UserDetailsService {
      *  - 입력값에 의해 결정되는 값 설정 : 사용자의 초기 권한 및 상태
      *  - DB 저장 및 처리 결과 반환 처리
      *  - 로직 처리 중 발생하는 예외 반환 처리
-     * @param createPartner
-     * @return
+     * @param createPartner 사용자 생성 요청 정보
+     * @return ProcessingResult
      */
     public ProcessingResult savePartner(CreatePartner createPartner){
         if(this.isDuplicatedId(createPartner.getPartnerId())){
@@ -77,7 +80,7 @@ public class PartnerService implements UserDetailsService {
 
     /**
      * Application에서 정의한 Account domain을 Spring security에서 정의한 UsertDetail Interface로 변환
-     * @param partnerId
+     * @param partnerId 요청 사용자 번호
      * @return
      * @throws UsernameNotFoundException
      */
@@ -104,12 +107,49 @@ public class PartnerService implements UserDetailsService {
 
     /**
      * Set으로 정의된 Role을 Collection Type으로 변환
-     * @param roles
+     * @param roles Collection으로 변환할 권한 Set
      * @return
      */
     private Collection<? extends GrantedAuthority> roleToAuthorities(Set<PartnerRole> roles) {
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
                 .collect(Collectors.toSet());
+    }
+
+    /**
+     * 특정 사용자에 클라이언트 정보 발급 로직
+     *  - 사용자 정보 존재 여부 확인
+     *  - 해당 사용자에 클라이언트 기 발급 여부 확인
+     *  - 입력값 및 초기값으로 설정되어야 하는 항목들의 값 설정
+     *  - DB 저장 및 처리 결과 반환 처리
+     *  - 로직 처리 중 발생하는 예외 반환 처리
+     * @param issueClient 클라이언트 발급 요청 정보
+     * @return ProcessingResult
+     */
+    @Transactional
+    public ProcessingResult saveClient(IssueClient issueClient){
+        Optional<PartnerEntity> optionalPartnerEntity = this.partnerRepository.findByPartnerNo(issueClient.getPartnerNo());
+        if(optionalPartnerEntity.isEmpty()){
+            return CommonResult.notFound();
+        }
+
+        PartnerEntity partnerEntity = optionalPartnerEntity.get();
+        ClientEntity clientEntity = partnerEntity.getClientEntity();
+        if(clientEntity != null) {
+            return new ProcessingResult(Error.builder()
+                    .code(412) // 412 Precondition Failed : 전제 조건 실패 HttpStatusCode 반환
+                    .message("Client 정보가 이미 발급 되었습니다.")
+                    .build()
+            );
+        }
+
+        clientEntity = this.modelMapper.map(issueClient, ClientEntity.class);
+        clientEntity.setPublishedClientInfo(partnerEntity);
+
+        try {
+            return new ProcessingResult(this.clientRepository.save(clientEntity));
+        } catch (Exception e) {
+            return serverError(e);
+        }
     }
 }
