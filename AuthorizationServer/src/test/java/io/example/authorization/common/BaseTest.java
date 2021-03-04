@@ -3,6 +3,7 @@ package io.example.authorization.common;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.example.authorization.generator.PartnerGenerator;
 import io.example.authorization.repository.PartnerRepository;
+import io.example.authorization.service.PartnerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
@@ -40,6 +41,9 @@ public class BaseTest {
 
     @Autowired
     protected PartnerRepository partnerRepository;
+
+    @Autowired
+    protected PartnerService partnerService;
 
     @Resource
     protected  PartnerGenerator partnerGenerator;

@@ -19,6 +19,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.provider.ClientDetails;
+import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.ClientRegistrationException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -36,7 +39,7 @@ import static io.example.authorization.service.common.CommonResult.serverError;
 **/
 @Service
 @RequiredArgsConstructor
-public class PartnerService implements UserDetailsService {
+public class PartnerService implements UserDetailsService, ClientDetailsService {
 
     private final PartnerRepository partnerRepository;
     private final ClientRepository clientRepository;
@@ -151,5 +154,13 @@ public class PartnerService implements UserDetailsService {
         } catch (Exception e) {
             return serverError(e);
         }
+    }
+
+    @Override
+    public ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException {
+        ClientEntity clientEntity = this.clientRepository.findById(clientId)
+                .orElseThrow(() -> new UsernameNotFoundException(clientId))
+                ;
+        return clientEntity;
     }
 }
