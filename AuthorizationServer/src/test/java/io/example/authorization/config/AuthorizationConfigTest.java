@@ -14,6 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.common.util.Jackson2JsonParser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -156,5 +157,84 @@ class AuthorizationConfigTest extends BaseTest{
                 .andExpect(jsonPath("expires_in").exists())
                 .andExpect(jsonPath("scope").exists())
         ;
+    }
+
+    @Test
+    @DisplayName("Refresh Token을 이용한 Access Token 갱신")
+    public void refreshAccessToken() throws Exception {
+        // Given : 토큰 발급 대상 사용자 정보 생성
+        CreatePartner createPartner = this.partnerGenerator.createPartner();
+        ProcessingResult createPartnerProcessingResult = this.partnerService.savePartner(createPartner);
+        assertThat(createPartnerProcessingResult.isSuccess()).isTrue();
+
+        // Given : 생성된 사용자에 클라이언트 정보 발급
+        PartnerEntity savedPartnerEntity = (PartnerEntity) createPartnerProcessingResult.getData();
+        String resourceIds = "NAVER";
+        IssueClient issueClient = new IssueClient();
+        issueClient.setPartnerNo(savedPartnerEntity.getPartnerNo());
+        issueClient.setResourceIds(resourceIds);
+
+        ProcessingResult issueClientProcessingResult = this.partnerService.saveClient(issueClient);
+        assertThat(issueClientProcessingResult.isSuccess()).isTrue();
+
+        // Given : 토큰 발급 요청에 필요한 사용자 정보와 클라이언트 정보 설정
+        ClientEntity clientEntity = (ClientEntity) issueClientProcessingResult.getData();
+
+        String urlTemplate = "/oauth/token";
+        String clientId = clientEntity.getClientId();
+        String clientSecret = clientEntity.getClientId();
+        String username = createPartner.getPartnerId();
+        String password = createPartner.getPartnerPassword();
+
+        // When : 인증 토큰 발급 요청
+        ResultActions resultActions = this.mockMvc.perform(post(urlTemplate)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .with(httpBasic(clientId, clientSecret))
+                .param("username", username)
+                .param("password", password)
+                .param("grant_type", "password")
+        );
+
+        // Then : 인증 토큰 발급 여부 확인
+        resultActions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("access_token").exists())
+                .andExpect(jsonPath("token_type").exists())
+                .andExpect(jsonPath("refresh_token").exists())
+                .andExpect(jsonPath("expires_in").exists())
+                .andExpect(jsonPath("scope").exists())
+        ;
+
+        // Then : 발급된 인증토큰 정보에서 access_token, refresh_toekn 추출
+        String beforeAuthTokenInfo = resultActions.andReturn().getResponse().getContentAsString();
+        Jackson2JsonParser jackson2JsonParser = new Jackson2JsonParser();
+        String beforeAccessToken = jackson2JsonParser.parseMap(beforeAuthTokenInfo).get("access_token").toString();
+        String beforeRefreshToken = jackson2JsonParser.parseMap(beforeAuthTokenInfo).get("refresh_token").toString();
+
+        // When : 인증 토큰 갱신 요청
+        String refreshTokenUrlTemplate = "/oauth/token";
+        ResultActions refreshTokenResultAction = this.mockMvc.perform(post(refreshTokenUrlTemplate)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .with(httpBasic(clientId, clientSecret))
+                .param("grant_type", "refresh_token")
+                .param("refresh_token", beforeRefreshToken)
+        );
+
+        // Then : 인증 토큰 갱신 여부 확인
+        refreshTokenResultAction.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("access_token").exists())
+                .andExpect(jsonPath("token_type").exists())
+                .andExpect(jsonPath("refresh_token").exists())
+                .andExpect(jsonPath("expires_in").exists())
+                .andExpect(jsonPath("scope").exists());
+        String afterAuthTokenInfo = refreshTokenResultAction.andReturn().getResponse().getContentAsString();
+        String afterAccessToken = jackson2JsonParser.parseMap(afterAuthTokenInfo).get("access_token").toString();
+        String afterRefreshToken = jackson2JsonParser.parseMap(afterAuthTokenInfo).get("refresh_token").toString();
+
+        assertThat(beforeAccessToken).isNotEqualTo(afterAccessToken);
+        assertThat(beforeRefreshToken).isNotEqualTo(afterRefreshToken);
     }
 }
