@@ -3,11 +3,8 @@ package io.example.authorization.domain.entity.partner;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.example.authorization.domain.entity.common.MetaEntity;
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.provider.ClientDetails;
 
 import javax.persistence.*;
 import java.util.*;
@@ -21,7 +18,7 @@ import java.util.*;
         )
 @Getter @Setter
 @Builder @NoArgsConstructor @AllArgsConstructor
-public class ClientEntity extends MetaEntity implements ClientDetails {
+public class ClientEntity extends MetaEntity {
 
     @Id
     @Column(name = "client_id")
@@ -83,76 +80,5 @@ public class ClientEntity extends MetaEntity implements ClientDetails {
 
         partnerEntity.publishedClientInfo();
         this.partnerEntity = partnerEntity;
-    }
-
-    @Override
-    public String getClientId() {
-        return clientId;
-    }
-    @Override
-    public Set<String> getResourceIds() {
-        if (resourceIds == null) return null;
-        String[] s = resourceIds.split(",");
-        return new HashSet<>(Arrays.asList(s));
-    }
-
-    @Override
-    public boolean isSecretRequired() {
-        return clientSecret != null;
-    }
-
-    @Override
-    public String getClientSecret() {
-        return clientSecret;
-    }
-
-    @Override
-    public boolean isScoped() {
-        return scope != null;
-    }
-
-    @Override
-    public Set<String> getScope() {
-        if (scope == null) return null;
-        String[] s = scope.split(",");
-        return new HashSet<>(Arrays.asList(s));
-    }
-
-    @Override
-    public Set<String> getAuthorizedGrantTypes() {
-        if (authorizedGrantTypes == null) return null;
-        String[] s = authorizedGrantTypes.split(",");
-        return new HashSet<>(Arrays.asList(s));
-    }
-
-    @Override
-    public Set<String> getRegisteredRedirectUri() {
-        return null;
-    }
-
-    @Override
-    public Collection<GrantedAuthority> getAuthorities() {
-        if (authorities == null) return new ArrayList<>();
-        return AuthorityUtils.createAuthorityList(authorities.split(","));
-    }
-
-    @Override
-    public Integer getAccessTokenValiditySeconds() {
-        return accessTokenValidity;
-    }
-
-    @Override
-    public Integer getRefreshTokenValiditySeconds() {
-        return refreshTokenValidity;
-    }
-
-    @Override
-    public boolean isAutoApprove(String scope) {
-        return autoApprove;
-    }
-
-    @Override
-    public Map<String, Object> getAdditionalInformation() {
-        return null;
     }
 }
