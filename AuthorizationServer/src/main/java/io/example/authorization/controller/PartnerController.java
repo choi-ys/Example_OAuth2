@@ -1,8 +1,8 @@
 package io.example.authorization.controller;
 
 import io.example.authorization.domain.dto.request.partner.CreatePartner;
+import io.example.authorization.domain.dto.request.partner.IssueClient;
 import io.example.authorization.domain.dto.response.common.ProcessingResult;
-import io.example.authorization.domain.entity.partner.PartnerEntity;
 import io.example.authorization.service.PartnerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +41,21 @@ public class PartnerController {
         }
 
         ProcessingResult processingResult = this.partnerService.savePartner(createPartner);
+
+        if(processingResult.isSuccess()){
+            return createResponse(processingResult);
+        }else{
+            return errorResponse(processingResult);
+        }
+    }
+
+    @PostMapping("/client")
+    public ResponseEntity issueClient(@RequestBody @Valid IssueClient issueClient, Errors errors){
+        if(errors.hasErrors()){
+            return badRequest(errors);
+        }
+
+        ProcessingResult processingResult = this.partnerService.saveClient(issueClient);
 
         if(processingResult.isSuccess()){
             return createResponse(processingResult);

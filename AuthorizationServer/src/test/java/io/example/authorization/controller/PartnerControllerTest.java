@@ -2,7 +2,9 @@ package io.example.authorization.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.example.authorization.common.BaseTest;
+import io.example.authorization.constants.MediaTypes;
 import io.example.authorization.domain.dto.request.partner.CreatePartner;
+import io.example.authorization.domain.dto.request.partner.IssueClient;
 import io.example.authorization.domain.entity.partner.PartnerStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -49,6 +51,27 @@ class PartnerControllerTest extends BaseTest {
                 .andExpect(jsonPath("data.partnerId").value(createPartner.getPartnerId()))
                 .andExpect(jsonPath("data.partnerEmail").value(createPartner.getPartnerEmail()))
                 .andExpect(jsonPath("data.partnerStatus").value(PartnerStatus.API_NOT_AVAILABLE.name()))
+        ;
+
+        long partnerNo = 1L;
+        String resourceIds = "CloudM";
+
+        IssueClient issueClient = new IssueClient();
+        issueClient.setPartnerNo(partnerNo);
+        issueClient.setResourceIds(resourceIds);
+
+        String urlTemplate2 = "/api/partner/client";
+
+        // When
+        ResultActions resultActions2 = this.mockMvc.perform(post(urlTemplate2)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(HAL_JSON_UTF8_VALUE)
+                .content(this.objectMapper.writeValueAsBytes(issueClient))
+        );
+
+        // Then
+        resultActions2.andDo(print())
+                .andExpect(status().isCreated())
         ;
     }
 
@@ -108,5 +131,32 @@ class PartnerControllerTest extends BaseTest {
                 .andExpect(jsonPath("errors[0].defaultMessage").exists())
                 .andExpect(jsonPath("errors[0].rejectedValue").exists())
         ;
+    }
+
+    @Test
+    @DisplayName("인증된 사용자에 클라이언트 정보 발급")
+    public void issueClient() throws Exception {
+        // Given
+        long partnerNo = 1L;
+        String resourceIds = "CloudM";
+
+        IssueClient issueClient = new IssueClient();
+        issueClient.setPartnerNo(partnerNo);
+        issueClient.setResourceIds(resourceIds);
+
+        String urlTemplate = "/api/client";
+
+        // When
+        ResultActions resultActions = this.mockMvc.perform(post(urlTemplate)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(HAL_JSON_UTF8_VALUE)
+                .content(this.objectMapper.writeValueAsBytes(issueClient))
+        );
+
+        // Then
+        resultActions.andDo(print())
+                .andExpect(status().isOk())
+        ;
+
     }
 }
