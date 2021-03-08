@@ -8,6 +8,7 @@ import org.springframework.security.oauth2.config.annotation.configurers.ClientD
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
+import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 
 import javax.sql.DataSource;
@@ -40,11 +41,19 @@ public class AuthorizationConfig extends AuthorizationServerConfigurerAdapter {
      * @throws Exception
      */
     @Override
-    public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+    public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
         endpoints.authenticationManager(authenticationManager) // Account 인증 정보를 소유한 Bean
                 .tokenStore(new JdbcTokenStore(dataSource)) // application에 명시된 dataSource를 tokenStore로 설정
                 .userDetailsService(partnerService) // Refresh Token을 이용한 Access Token갱신 시 인증된 사용자 여부 검사를 위한 UserDetailsService 구현체 설정
                 .reuseRefreshTokens(false) //  Refresh Token을 이용한 Access Token갱신 시 Refresh Token 만료 처리 설정
+        ;
+    }
+
+    @Override
+    public void configure(AuthorizationServerSecurityConfigurer security) {
+        security.tokenKeyAccess("permitAll()")
+                .checkTokenAccess("permitAll()")
+                .allowFormAuthenticationForClients()
         ;
     }
 }
