@@ -144,7 +144,7 @@ class PartnerControllerTest extends BaseTest {
         issueClient.setPartnerNo(partnerNo);
         issueClient.setResourceIds(resourceIds);
 
-        String urlTemplate = "/api/client";
+        String urlTemplate = "/api/partner/client";
 
         // When
         ResultActions resultActions = this.mockMvc.perform(post(urlTemplate)

@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8081
 spring:
   datasource:
     username: postgres
@@ -26,3 +26,11 @@ logging:
             sql:
               BasicBinder: trace
     root: debug
+
+security:
+  oauth2:
+    resource:
+      token-info-uri: http://localhost:8080/oauth/check_token
+    client:
+      client-id: fc9815d4-3a6e-4d76-9f36-0b1bf2db40fb
+      client-secret: fc9815d4-3a6e-4d76-9f36-0b1bf2db40fb

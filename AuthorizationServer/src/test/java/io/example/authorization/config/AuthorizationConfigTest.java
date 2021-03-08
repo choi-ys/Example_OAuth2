@@ -1,6 +1,7 @@
 package io.example.authorization.config;
 
 import io.example.authorization.common.BaseTest;
+import io.example.authorization.constants.MediaTypes;
 import io.example.authorization.domain.dto.request.partner.CreatePartner;
 import io.example.authorization.domain.dto.request.partner.IssueClient;
 import io.example.authorization.domain.dto.response.common.ProcessingResult;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.common.util.Jackson2JsonParser;
@@ -20,6 +22,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -156,6 +159,25 @@ class AuthorizationConfigTest extends BaseTest{
                 .andExpect(jsonPath("refresh_token").exists())
                 .andExpect(jsonPath("expires_in").exists())
                 .andExpect(jsonPath("scope").exists())
+        ;
+
+        // Given : 발급된 인증토큰 정보에서 access_token 추출
+        String authTokenInfo = resultActions.andReturn().getResponse().getContentAsString();
+        Jackson2JsonParser jackson2JsonParser = new Jackson2JsonParser();
+        String accessToken = jackson2JsonParser.parseMap(authTokenInfo).get("access_token").toString();
+
+        // When
+
+        String checkTokenUrlTemplate = "/oauth/check_token";
+        ResultActions checkTokenResultAction = this.mockMvc.perform(post(checkTokenUrlTemplate)
+//                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .param("token", accessToken)
+        );
+
+        checkTokenResultAction.andDo(print())
+                .andExpect(status().isOk())
         ;
     }
 
