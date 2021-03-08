@@ -157,6 +157,24 @@ class AuthorizationConfigTest extends BaseTest{
                 .andExpect(jsonPath("expires_in").exists())
                 .andExpect(jsonPath("scope").exists())
         ;
+
+        // Given : 발급된 인증토큰 정보에서 access_token 추출
+        String authTokenInfo = resultActions.andReturn().getResponse().getContentAsString();
+        Jackson2JsonParser jackson2JsonParser = new Jackson2JsonParser();
+        String accessToken = jackson2JsonParser.parseMap(authTokenInfo).get("access_token").toString();
+
+        // When : 발급된 인증 토큰 검증 요청
+        String checkTokenUrlTemplate = "/oauth/check_token";
+        ResultActions checkTokenResultAction = this.mockMvc.perform(post(checkTokenUrlTemplate)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .param("token", accessToken)
+        );
+
+        // Then : 발급된 인증 토큰 검증 여부 확인
+        checkTokenResultAction.andDo(print())
+                .andExpect(status().isOk())
+        ;
     }
 
     @Test
