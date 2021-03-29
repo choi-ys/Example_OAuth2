@@ -1,0 +1,230 @@
+= CloudM API Guide Document
+[KST Mobility - Team DevOps];
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 3
+:sectlinks:
+:operation-curl-request-title: Example Request
+:operation-http-response-title: Example Response
+
+[[overview]]
+= ** 개요 **
+
+[%hardbreaks]
+----
+CloudM API는 모빌리티에 관련된 운행자, 주행, 교통량, 배차현황 등의 데이터를 제공하는 API 입니다.
+본 문서는 CloudM API 대한 사용 정보를 제공합니다.
+----
+
+
+[[overview-http-verbs]]
+=== ** HTTP 동사 **
+
+---
+
+====
+TIP: ** 본 API에서 사용하는 HTTP 동사(verbs)는 가능한 한 표준 HTTP와 REST 규약을 따릅니다. **
+====
+
+|===
+| Http Method | Description
+
+| `*GET*`
+| *리소스를 조회*
+
+| `*POST*`
+| *새 리소스를 생성*
+
+| `*PUT*`
+| *기존 리소스를 수정*
+
+| `*DELETE*`
+| *기존 리소스를 삭제*
+|===
+
+//https://hyeonstorage.tistory.com/97
+[[overview-http-status-codes]]
+=== ** HTTP 상태 코드 **
+
+---
+
+====
+TIP: ** 본 API에서 사용하는 HTTP 상태 코드는 가능한 한 표준 HTTP와 REST 규약을 따릅니다. **
+====
+
+|===
+| Http Status Code | Description
+
+| `*200 OK*`
+| 요청이 성공적으로 처리된 경우
+
+| `*201 Created*`
+| 요청이 성공적으로 처리되어, 새로운 리소스가 생성된 경우 +
+이 응답은 일반적으로 `POST` 요청 또는 일부 `PUT` 요청 이후에 따라옵니다.
+응답의 `Location` 헤더에 해당 리소스의 URI가 담겨있습니다.
+
+//| `*204 No Content*`
+//| `*POST*` 성공 상태 응답 코드는 요청이 성공했으나 클라이언트가 현재 페이지에서 벗어나지 않아도 된다는 것을 나타냅니다. +
+//기본값에서 204 응답은 캐시에 저장할 수 있습니다. +
+//캐시에서 가져온 응답인 경우 ETag 헤더를 포함합니다.
+
+| `*400 Bad Request*`
+| 잘못된 요청을 보낸 경우 +
+응답 본문에 오류에 대한 정보가 포함되어 있습니다.
+
+| `*403 Unauthorized*`
+| 인증에 실패한 경우
+
+| `*403 Forbidden*`
+| 접근 권한이 없는 경우
+
+| `*404 Not Found*`
+| 요청한 리소스가 없는 경우
+
+| `*415 Unsupported Media Type*`
+| 요청한 `Midea Type` 을 지원하지 않는 경우
+
+| `*429 Too Many Requests*`
+| 일정 기간내 너무 많은 요청이 접수된 경우
+|===
+
+
+[[overview-hypermedia]]
+=== ** 하이퍼미디어 **
+---
+----
+- 본 API는 하이퍼미디어와 사용하며, 응답에 담겨있는 리소스는 관계된 다른 리소스에 대한 링크를 가지고 있습니다.
+- 응답은 [Hypertext Application from resource to resource. Language (HAL)] 형식을 따릅니다.
+- 링크는 '_links' 라는 키로 제공합니다.
+- 본 API의 사용자(클라이언트)는 URI를 직접 생성하지 않아야 하며, 리소스에서 제공하는 링크를 사용해야 합니다.
+----
+
+
+[[common]]
+= ** 공통사항 **
+---
+
+
+[[common-domain]]
+=== ** 도메인 정보 **
+TIP: ** 도메인 정보 **
+----
+API 호출 시 Endpoint구성에 필요한 도메인 정보를 제공합니다.
+----
+|===
+| 환경 | 도메인
+
+| DEV | dev-api.cloudm.io
+
+| STG | stg-api.cloudm.io
+
+| SANDBOX | sandbox-api.cloudm.io
+
+| PRD | api.cloudm.io
+|===
+---
+
+
+[[common-domain]]
+=== ** 요청 메세지 구조 **
+TIP: ** 요청 메세지 구조 **
+----
+API 호출에 필요한 요청 메세지 구조에 대한 정보를 제공합니다.
+ - 요청 파라미터는 CamelCase 구조를 따릅니다.
+----
+---
+
+
+[[common-response]]
+=== ** 응답 메세지 구조 **
+TIP: ** 응답 메세지 구조 **
+----
+API 호출 시 응답 메세지 구조에 대한 정보를 제공합니다.
+ - 응답 파라미터는 CamelCase 구조를 따릅니다.
+----
+---
+
+
+[[common-response-pagination]]
+==== ** Pagination **
+TIP: ** Pagination **
+----
+목록 API 호출 시 응답 내 '페이징' 처리에 대한 구조 정보를 제공합니다.
+----
+---
+
+
+[[common-response-errors]]
+==== ** Error **
+IMPORTANT: ** API 호출 시 에러 발생 시 (HttpStatusCode >= 400), 응답 본문에 해당 문제를 기술한 JSON 객채를 반환합니다.
+에러 객체는 다음과 같은 구조로 구성되어 있습니다. **
+----
+{
+    code : 웅답 코드
+    message : 응답 메세지
+    detail : 응답 상세 설명
+    data : {
+        object : 요청 파라미터 항목
+        reqeust_value : 요청 파라미터 값
+    }
+}
+----
+
+
+WARNING: ** 예를 들어, 잘못된 요청으로 이벤트를 만들려고 했을 때 다음과 같은 `400 Bad Request` 응답을 반환합니다. **
+----
+{
+    code : 403
+    message : Unauthorized
+    detail : 인증에 실패하였습니다. access_token 정보를 확인해주세요.
+    data : {
+        object : access_token
+        reqeust_value : a43139c4-f38b-4332-8417-4a98eeaa4207
+    }
+}
+----
+
+
+[[resources]]
+= ** API **
+---
+
+
+[[resources-index]]
+=== ** 목차 **
+NOTE: ** Index API **
+----
+Index API는 서비스 진입점을 제공 합니다.
+----
+
+
+[[resources-index-access]]
+==== ** 목차 조회 : `*GET*` Index **
+====
+`*GET*` 요청을 사용하여 목차에 접근할 수 있습니다
+
+operation::index-controller-test/index-api_-test[snippets='http-request,http-response,response-body,links']
+====
+---
+
+
+[[resources-download]]
+=== ** 다운로드 **
+NOTE: ** Download API **
+----
+파일명(filename)에 해당하는 S3 presigned-url을 반환합니다.
+----
+---
+
+
+[[resources-download-get]]
+==== ** 다운로드 링크 조회 : `*GET*` Download URL **
+====
+`Get` 요청을 사용하여 파일 다운로드 링크를 조회합니다.
+//====
+
+operation::download-controller-test/get_s3-file-download-url-with-no-parameter_-test[snippets='curl-request,http-request,request-headers,request-parameters,http-response,response-headers,response-body,response-fields,links']
+====
+---
